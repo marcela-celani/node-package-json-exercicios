@@ -2,7 +2,7 @@
 import express from 'express'
 import { Request, Response } from 'express'
 import cors from 'cors'
-import { product, users } from './database'
+import { createProduct, createUser, product, users } from './database'
 import { Tproducts, Tusers } from './types'
 
 // config express, cors, server
@@ -49,34 +49,30 @@ app.get('/products/search', (req: Request, res: Response) => {
 })
 
 // createUser
-app.post('/users', (req: Request, res: Response) => {
-    const {id, name, email, password, createdAt}: Tusers = req.body
+app.post('/users', (req: Request, res: Response): void => {
+    const {id, name, email, password, createdAt}: {
+        id: string,
+        name: string,
+        email: string,
+        password: string,
+        createdAt: string
+    } = req.body
 
-    const newUser = {
-        id,
-        name,
-        email,
-        password,
-        createdAt,
-    }
-
-    users.push(newUser)
-    res.status(201).send('Usuario cadastrado com sucesso!')
+    const newUser = createUser(id, name, email, password, createdAt)
+    res.status(201).send(newUser)
 })
 
 // createProducts
-app.post('/products', (req: Request, res: Response) => {
-    const {id, name, price, description, imageUrl}: Tproducts = req.body
+app.post('/products', (req: Request, res: Response): void => {
+    const {id, name, price, description, imageUrl}: {
+        id: string,
+        name: string,
+        price: number,
+        description: string,
+        imageUrl: string
+    } = req.body
 
-    const newProduct = {
-        id,
-        name,
-        price,
-        description,
-        imageUrl,
-    }
-
-    product.push(newProduct)
-    res.status(201).send('Produto cadastrado com sucesso!')
+    const newProduct = createProduct(id, name, price, description, imageUrl)
+    res.status(201).send(newProduct)
 })
 

@@ -34,3 +34,32 @@ export const product: Tproducts[] = [
         imageUrl: 'https://picsum.photos/seed/Monitor/400',
     }
 ]
+
+// funçao criar usuario
+export const createUser = (id: string, name: string, email: string, password: string, createdAt: string): string => {
+    const newUser = {
+        id,
+        name,
+        email,
+        password,
+        createdAt,
+    }
+    
+    users.push(newUser)
+    return('Usuario criado com sucesso')
+}
+
+// funçao criar produto
+export const createProduct = (id: string, name: string, price: number, description: string, imageUrl: string): string => {
+    const newProduct = {
+        id,
+        name,
+        price,
+        description,
+        imageUrl,
+    }
+
+    product.push(newProduct)
+    return('Produto criado com sucesso')
+}
+
