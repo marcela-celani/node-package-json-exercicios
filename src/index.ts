@@ -2,7 +2,7 @@
 import express from 'express'
 import { Request, Response } from 'express'
 import cors from 'cors'
-import { createProduct, createUser, product, users } from './database'
+import { createProduct, createUser, deleteProducts, deleteUser, editProducts, product, users } from './database'
 import { Tproducts, Tusers } from './types'
 
 // config express, cors, server
@@ -75,4 +75,40 @@ app.post('/products', (req: Request, res: Response): void => {
     const newProduct = createProduct(id, name, price, description, imageUrl)
     res.status(201).send(newProduct)
 })
+
+// deleteUser
+app.delete('/users/:id', (req: Request, res: Response) => {
+    const id = req.params.id
+    const handler = res.status(404).send({message: 'Usuário não encontrado'})
+
+    deleteUser(id, handler)
+    res.status(200).send({message: 'User apagado com sucesso'})
+})
+
+// deleteProducts
+app.delete('/products/:id', (req: Request, res: Response) => {
+    const id = req.params.id
+    const handler = res.status(404).send({message: 'Produto não encontrado'})
+    
+    deleteProducts(id, handler)
+
+    res.status(200).send({message: 'Produto apagado com sucesso'})
+})
+
+// editProducts
+app.put('/products/:id', (req: Request, res: Response) => {
+    const id = req.params.id
+    const handler = res.status(404).send({message: 'Produto não encontrado'})
+
+    const newName = req.body.name as string | undefined
+    const newPrice = req.body.price as number | undefined
+    const newDescription = req.body.description as string | undefined
+    const newImageUrl = req.body.imageUrl as string | undefined
+    
+    editProducts(id, handler, newName, newPrice, newDescription, newImageUrl)
+
+    res.status(200).send({message: 'Produto atualizado com sucesso'})
+    
+})
+
 

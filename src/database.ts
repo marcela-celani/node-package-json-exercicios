@@ -63,3 +63,41 @@ export const createProduct = (id: string, name: string, price: number, descripti
     return('Produto criado com sucesso')
 }
 
+// função deletar usuario
+export const deleteUser = (id: string, handler: any): void => {
+    
+    const indexToDelete = product.findIndex((item)=> item.id === id)
+    
+    if(indexToDelete >=0){
+        users.splice(indexToDelete,1)
+    } else {
+        handler()
+    }
+}
+
+// função deletar produto
+export const deleteProducts = (id: string, handler: any): void => {
+    
+    const indexToDelete = product.findIndex((item)=> item.id === id)
+    
+    if(indexToDelete >=0){
+        product.splice(indexToDelete,1)
+    } else {
+        handler()
+    }
+}
+
+// função editar produto
+export const editProducts = (id:string, handler:any, newName:string, newPrice:number, newDescription:string, newImageUrl:string): void => {
+
+    const productToEdit = product.find((item)=> item.id === id)
+
+    if(productToEdit){
+        productToEdit.name = newName || productToEdit.name
+        productToEdit.price = isNaN(newPrice) ? productToEdit.price : newPrice
+        productToEdit.description = newDescription || productToEdit.description
+        productToEdit.imageUrl = newImageUrl || productToEdit.imageUrl
+    } else {
+        handler()
+    }  
+}
