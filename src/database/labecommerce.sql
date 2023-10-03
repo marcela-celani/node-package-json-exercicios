@@ -9,6 +9,7 @@ CREATE TABLE users (
 );
 
 SELECT * FROM users;
+UPDATE users SET email='fernandacanudo@gmail.com' WHERE id='u002';
 
 DROP TABLE users;
 
@@ -43,14 +44,16 @@ CREATE TABLE purchases (
     FOREIGN KEY(buyer) REFERENCES users(id) 
 );
 
-
 INSERT INTO purchases VALUES
-    ('b001', 'u001', 129.90, '02/10/2023'),
-    ('b002', 'u002', 39.90, '03/10/2023'),
-    ('b003', 'u003', 149.90, '04/10/2023');
+('b001', 'u001', 129.90, DATETIME()),
+('b002', 'u002', 39.90, DATETIME()),
+('b003', 'u003', 149.90, DATETIME());
+
+UPDATE purchases SET total_price = 39.99, created_at = strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime') WHERE id = 'b002'
+
+SELECT * FROM purchases;
 
 DROP TABLE purchases;
 DELETE FROM purchases;
-SELECT * FROM purchases;
 
 SELECT purchases.id, users.id, users.name, users.email, purchases.total_price, purchases.created_at FROM purchases INNER JOIN users ON users.id = purchases.buyer;
