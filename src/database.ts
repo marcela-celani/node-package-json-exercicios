@@ -95,3 +95,5 @@ export const editProducts = (id:string, newName:string, newPrice:number, newDesc
         productToEdit.imageUrl = newImageUrl || productToEdit.imageUrl
     }
 }
+
+

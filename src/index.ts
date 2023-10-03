@@ -239,3 +239,5 @@ app.put('/products/:id', (req: Request, res: Response) => {
 })
 
 
+// função data
+export const date = new Date().toISOString()
