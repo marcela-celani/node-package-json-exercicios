@@ -41,7 +41,9 @@ CREATE TABLE purchases (
     buyer TEXT NOT NULL,
     total_price REAL NOT NULL,
     created_at   TEXT NOT NULL,
-    FOREIGN KEY(buyer) REFERENCES users(id) 
+    FOREIGN KEY(buyer) REFERENCES users(id)
+    ON UPDATE CASCADE -- efeito cascata ao atualizar id na tabela purchases
+	ON DELETE CASCADE -- efeito cascata ao atualizar id na tabela purchases 
 );
 
 INSERT INTO purchases VALUES
@@ -57,3 +59,20 @@ DROP TABLE purchases;
 DELETE FROM purchases;
 
 SELECT purchases.id, users.id, users.name, users.email, purchases.total_price, purchases.created_at FROM purchases INNER JOIN users ON users.id = purchases.buyer;
+
+CREATE TABLE purchases_products(
+    purchase_id TEXT NOT NULL,
+    product_id TEXT NOT NULL,
+    quantity INTEGER NOT NULL,
+    FOREIGN KEY(purchase_id) REFERENCES purchases(id),
+    FOREIGN KEY(product_id) REFERENCES products(id)
+    ON UPDATE CASCADE -- efeito cascata ao atualizar id na tabela users
+	ON DELETE CASCADE -- efeito cascata ao atualizar id na tabela users
+);
+
+INSERT INTO purchases_products VALUES
+('b001', 'p001', 2),
+('b001', 'p002', 1),
+('b002', 'p003', 3);
+
+SELECT purchases_products.product_id, purchases_products.purchase_id, users.name, products.name, purchases_products.quantity FROM purchases_products INNER JOIN purchases ON purchases_products.purchase_id = purchases.id INNER JOIN products ON purchases_products.product_id = products.id INNER JOIN users ON purchases.buyer = users.id;
