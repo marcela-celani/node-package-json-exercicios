@@ -1,0 +1,45 @@
+GET http://localhost:3003/users
+### GET ALL USERS
+
+POST http://localhost:3003/users
+Content-Type: application/json
+
+{
+    "id": "u006",
+    "name": "Alessandra Dias",
+    "email": "alexandra7@hotmail",
+    "password": "alexandra123"
+}
+
+### CREATE USER
+
+GET http://localhost:3003/products
+### GET PRODUCTS FUNCIONALIDADE 1
+
+GET http://localhost:3003/products/?name=tv
+### GET PRODUCTS FUNCIONALIDADE 2
+
+POST http://localhost:3003/products
+Content-Type: application/json
+
+{
+    "id": "p006",
+    "name": "Echo Dot White",
+    "price": 419.10,
+    "description": "Novo Echo Dot 5ª geração | O Echo Dot com o melhor som já lançado | Cor Branca",
+    "image_url": "https://m.media-amazon.com/images/I/71xoR4A6q-L._AC_SX522_.jpg"
+}
+
+### CREATE PRODUCT
+
+PUT http://localhost:3003/products/p003
+Content-Type: application/json
+
+{
+    "name": "Echo Dot",
+    "price": 386.15,
+    "description": "Novo Echo Dot 5ª geração | O Echo Dot com o melhor som já lançado | Cor Preta",
+    "image_url": "https://m.media-amazon.com/images/I/71xoR4A6q-L._AC_SX522_.jpg"
+}
+
+### EDIT PRODUCT BY ID

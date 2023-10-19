@@ -1,8 +1,7 @@
-
 import express from 'express'
 import { Request, Response } from 'express'
 import cors from 'cors'
-import { createProduct, createUser, deleteProducts, deleteUser, editProducts, product, users } from './database'
+import { db } from "./database/knex";
 import { Tproducts, Tusers } from './types'
 
 // config express, cors, server
@@ -15,9 +14,9 @@ app.listen(3003, () => {
 })
 
 // getAllUsers
-app.get('/users', (req: Request, res: Response) => {
+app.get('/users', async (req: Request, res: Response) => {
     try {
-        const result: Tusers[] = users
+        const result: Tusers[] = await db("users");
         res.status(200).send(result)
     } catch (error) {
         console.log(error)
@@ -28,18 +27,79 @@ app.get('/users', (req: Request, res: Response) => {
     }
 })
 
-// getAllProducts
-app.get('/products', (req: Request, res: Response) => {
+// createUser
+app.post('/users', async (req: Request, res: Response):Promise<void> => {
     try {
-        const query = req.query.q as string | undefined
-        if(query) { 
-            if(query.length < 1){
-                throw new Error('Query deve possuir pelo menos um caractere')
-            }
-            const result: Tproducts[] = product.filter((product) => product.name.toLowerCase() === query.toLowerCase())
+        const {id, name, email, password, created_at}: {
+            id: string,
+            name: string,
+            email: string,
+            password: string,
+            created_at: string
+        } = req.body
+
+        const [ user ] = await db.raw(`
+            SELECT * FROM users
+            WHERE id = "${id}";
+        `)
+
+        if (user) {
+            res.status(404)
+            throw new Error("O Id fornecido já existe. Escolha um Id único")
+        }
+
+        if(!id || typeof id !== 'string'){
+            throw new Error("Id deve ser uma 'string'")
+        }
+
+        if(!name || typeof name !== 'string'){
+            throw new Error("Name deve ser uma 'string'")
+        }
+
+        if(!email || typeof email !== 'string'){
+            throw new Error("Email deve ser uma 'string'")
+        }
+
+        const [ userEmail ] = await db.raw(`
+            SELECT * FROM users
+            WHERE email = "${email}";
+        `)
+
+        if (userEmail) {
+            res.status(404)
+            throw new Error("O email fornecido já existe. Escolha um email único")
+        }
+
+        if(!password || typeof password !== 'string'){
+            throw new Error("Password deve ser uma 'string'")
+        }
+        
+        await db.raw(`
+            INSERT INTO users (id, name, email, password)
+            VALUES ("${id}", "${name}", "${email}", "${password}");
+        `)
+
+        res.status(201).send({message: 'Cadastro realizado com sucesso'})
+    } catch (error) {
+        console.log(error)
+        if(error instanceof Error){
+            res.statusCode = 400
+            res.send(error.message)
+        }
+    }
+})
+
+// getAllProducts
+app.get('/products', async (req: Request, res: Response):Promise<void> => {
+    try {
+        const name = req.query.name as string
+        let result: Tproducts[]
+        if(name) { 
+            result = await db.raw(`SELECT * FROM products WHERE name LIKE '%${name}%'`);
             res.status(200).send(result)
         } else {
-            res.status(200).send(product)
+            result = await db.raw(`SELECT * FROM products`);
+            res.status(200).send(result)
         }
     } catch (error) {
         console.log(error)
@@ -51,93 +111,39 @@ app.get('/products', (req: Request, res: Response) => {
 })
 
 // getUserByName
-app.get('/users/search', (req: Request, res: Response) => {
-    const query = req.query.q as string
-    if (query){
-        const result: Tusers[] = users.filter((user) => user.name.toLowerCase() === query.toLowerCase())
-        res.status(200).send(result)
-    } else {
-        res.status(200).send(users)
-    }
-})
-
-// getProductByName
-app.get('/products/search', (req: Request, res: Response) => {
-    const query = req.query.q as string
-    if(query){
-        const result: Tproducts[] = product.filter((product) => product.name.toLowerCase() === query.toLowerCase())
-        res.status(200).send(result)
-    } else {
-        res.status(200).send(product)
-    }
-})
-
-// createUser
-app.post('/users', (req: Request, res: Response): void => {
-    try {
-        const {id, name, email, password, createdAt}: {
-            id: string,
-            name: string,
-            email: string,
-            password: string,
-            createdAt: string
-        } = req.body
-
-        if(!id || typeof id !== 'string'){
-            throw new Error("Id deve ser uma 'string'")
-        }
-
-        const idIndex: number = users.findIndex((user) => user.id === id)
-        if(idIndex >= 0){
-            throw new Error("O Id fornecido já existe. Escolha um Id único")
-        }
-
-        if(!name || typeof name !== 'string'){
-            throw new Error("Name deve ser uma 'string'")
-        }
-
-        if(!email || typeof email !== 'string'){
-            throw new Error("Email deve ser uma 'string'")
-        }
-
-        const emailIndex: number = users.findIndex((user) => user.id === id)
-        if(emailIndex >= 0){
-            throw new Error("O email fornecido já existe. Escolha um email único")
-        }
-
-        if(!password || typeof password !== 'string'){
-            throw new Error("Password deve ser uma 'string'")
-        }
-    
-        const newUser = createUser(id, name, email, password, createdAt)
-        res.status(201).send(newUser)
-    } catch (error) {
-        console.log(error)
-        if(error instanceof Error){
-            res.statusCode = 400
-            res.send(error.message)
-        }
-    }
-})
+// app.get('/users/search', (req: Request, res: Response) => {
+//     const query = req.query.q as string
+//     if (query){
+//         const result: Tusers[] = users.filter((user) => user.name.toLowerCase() === query.toLowerCase())
+//         res.status(200).send(result)
+//     } else {
+//         res.status(200).send(users)
+//     }
+// })
 
 // createProducts
-app.post('/products', (req: Request, res: Response): void => {
+app.post('/products', async (req: Request, res: Response):Promise<void> => {
     try {
-        const {id, name, price, description, imageUrl}: {
+        const {id, name, price, description, image_url}: {
             id: string,
             name: string,
             price: number,
             description: string,
-            imageUrl: string
+            image_url: string
         } = req.body
     
-        if(!id || typeof id !== 'string'){
-            throw new Error("Id deve ser uma 'string'")
+        const [ product ] = await db.raw(`
+            SELECT * FROM products
+            WHERE id = "${id}";
+        `)
+
+        if (product) {
+            res.status(404)
+            throw new Error("O Id fornecido já existe. Escolha um Id único")
         }
 
-        const idIndex: number = product.findIndex((product) => product.id === id)
-        if(idIndex >= 0){
-            throw new Error("O Id fornecido já existe. Escolha um Id único")
+        if(!id || typeof id !== 'string'){
+            throw new Error("Id deve ser uma 'string'")
         }
 
         if(!name || typeof name !== 'string'){
@@ -152,12 +158,18 @@ app.post('/products', (req: Request, res: Response): void => {
             throw new Error("description deve ser uma 'string'")
         }
 
-        if(!imageUrl || typeof imageUrl !== 'string'){
+        if(!image_url || typeof image_url !== 'string'){
             throw new Error("imageUrl deve ser uma 'string'")
         }
 
-        const newProduct = createProduct(id, name, price, description, imageUrl)
-        res.status(201).send(newProduct)
+        await db.raw(`
+        INSERT INTO products (id, name, price, description, image_url)
+        VALUES ("${id}", "${name}", "${price}", "${description}", "${image_url}");
+        `)
+
+        res.status(201).send({message: 'Produto cadastrado com sucesso'})
+
+        
     } catch (error) {
         console.log(error)
         if(error instanceof Error){
@@ -168,67 +180,95 @@ app.post('/products', (req: Request, res: Response): void => {
 })
 
 // deleteUser
-app.delete('/users/:id', (req: Request, res: Response) => {
-    try {
-        const id = req.params.id
+// app.delete('/users/:id', (req: Request, res: Response) => {
+//     try {
+//         const id = req.params.id
 
-        const idIndex: number = users.findIndex((user) => user.id === id)
+//         const idIndex: number = users.findIndex((user) => user.id === id)
 
-        if(idIndex === -1){
-            throw new Error('Usuário não encontrado')
-        }
+//         if(idIndex === -1){
+//             throw new Error('Usuário não encontrado')
+//         }
 
-        deleteUser(id)
-        res.status(200).send({message: 'User apagado com sucesso'})
-    } catch (error) {
-        console.log(error)
-        if(error instanceof Error){
-            res.statusCode = 400
-            res.send(error.message)
-        }
-    }
-})
+//         deleteUser(id)
+//         res.status(200).send({message: 'User apagado com sucesso'})
+//     } catch (error) {
+//         console.log(error)
+//         if(error instanceof Error){
+//             res.statusCode = 400
+//             res.send(error.message)
+//         }
+//     }
+// })
 
 // deleteProducts
-app.delete('/products/:id', (req: Request, res: Response) => {
-    try {
-        const id = req.params.id
+// app.delete('/products/:id', (req: Request, res: Response) => {
+//     try {
+//         const id = req.params.id
     
-        const idIndex: number = product.findIndex((product) => product.id === id)
+//         const idIndex: number = product.findIndex((product) => product.id === id)
 
-        if(idIndex === -1){
-            throw new Error('Produto não encontrado')
-        }
+//         if(idIndex === -1){
+//             throw new Error('Produto não encontrado')
+//         }
     
-        deleteProducts(id)
-        res.status(200).send({message: 'Produto apagado com sucesso'})
-    } catch (error) {
-        console.log(error)
-        if(error instanceof Error){
-            res.statusCode = 400
-            res.send(error.message)
-        }
-    }
-})
+//         deleteProducts(id)
+//         res.status(200).send({message: 'Produto apagado com sucesso'})
+//     } catch (error) {
+//         console.log(error)
+//         if(error instanceof Error){
+//             res.statusCode = 400
+//             res.send(error.message)
+//         }
+//     }
+// })
 
 // editProducts
-app.put('/products/:id', (req: Request, res: Response) => {
+app.put('/products/:id', async (req: Request, res: Response) => {
     try {
         const id = req.params.id
 
         const newName = req.body.name as string | undefined
         const newPrice = req.body.price as number | undefined
         const newDescription = req.body.description as string | undefined
-        const newImageUrl = req.body.imageUrl as string | undefined
+        const newImageUrl = req.body.image_url as string | undefined
     
-        const idIndex: number = product.findIndex((product) => product.id === id)
-        if(idIndex === -1){
-            throw new Error("O produto não existe")
+        if (newName !== undefined) {
+
+            if (typeof newName !== "string") {
+                res.status(400)
+                throw new Error("'name' deve ser string")
+            }
+
+            if (newName.length < 1) {
+                res.status(400)
+                throw new Error("'name' deve possuir no mínimo 1 caractere")
+            }
         }
 
-        editProducts(id, newName, newPrice, newDescription, newImageUrl)
+        const [ product ] = await db.raw(`
+            SELECT * FROM products
+            WHERE id = "${id}";
+        `)
 
-        res.status(200).send({message: 'Produto atualizado com sucesso'})
+        if (product) {
+            await db.raw(`
+                UPDATE products
+                SET
+                    name = "${newName || product.name}",
+                    price = "${newPrice || product.price}",
+                    description = "${newDescription || product.description}",
+                    image_url = "${newImageUrl || product.image_url}"
+                WHERE
+                    id = "${id}";
+            `)
+        } else {
+            res.status(404)
+            throw new Error("'id' não encontrada")
+        }
+
+        res.status(200).send({ message: "Produto atualizado com sucesso" })
+
     } catch (error) {
         console.log(error)
         if(error instanceof Error){
@@ -237,7 +277,3 @@ app.put('/products/:id', (req: Request, res: Response) => {
         }
     }
 })
-
-
-// função data
-export const date = new Date().toISOString()

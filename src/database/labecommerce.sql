@@ -1,11 +1,11 @@
--- Active: 1695859276783@@127.0.0.1@3306
+-- Active: 1697670843490@@127.0.0.1@3306
 
 CREATE TABLE users (
     id TEXT PRIMARY KEY UNIQUE NOT NULL,
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    created_at TEXT NOT NULL
+    created_at TEXT DEFAULT (DATETIME('now', 'localtime'))
 );
 
 SELECT * FROM users;
@@ -13,10 +13,10 @@ UPDATE users SET email='fernandacanudo@gmail.com' WHERE id='u002';
 
 DROP TABLE users;
 
-INSERT INTO users VALUES 
-('u001', 'Patricia Coelho', 'patriciacoelho@gmail.com', 'Fr6H45', '25/09/2023'),
-('u002', 'Andreia Laura', 'andreialaura@gmail.com', 'b53bT?4@', '25/09/2023'),
-('u003', 'Eduardo Camelo', 'educamelo@gmail.com', ',3J39xnU', '25/09/2023');
+INSERT INTO users (id, name, email, password) VALUES
+('u001', 'Patricia Coelho', 'patriciacoelho@gmail.com', 'Fr6H45'),
+('u002', 'Andreia Laura', 'andreialaura@gmail.com', 'b53bT?4@'),
+('u003', 'Eduardo Camelo', 'educamelo@gmail.com', ',3J39xnU');
 
 CREATE TABLE products (
     id TEXT PRIMARY KEY UNIQUE NOT NULL,
@@ -33,7 +33,7 @@ DROP TABLE products;
 
 INSERT INTO products VALUES 
 ('p001', 'Fire TV Stick Lite', 284.05, 'Fire TV Stick Lite | Streaming em Full HD com Alexa | Com Controle Remoto Lite por Voz com Alexa (sem controles de TV)', 'https://m.media-amazon.com/images/I/41XUvigLn0L._AC_SY355_.jpg'),
-('p002', 'Echo Show', 539.10, 'Echo Show 5 (2ª Geração): Smart Display de 5" com Alexa e câmera de 2 MP - Cor Azul', 'https://m.media-amazon.com/images/I/71wSK5GhXRS._AC_SX522_.jpg'),
+('p002', 'Echo', 539.10, 'Echo Show 5 (2ª Geração): Smart Display de 5" com Alexa e câmera de 2 MP - Cor Azul', 'https://m.media-amazon.com/images/I/71wSK5GhXRS._AC_SX522_.jpg'),
 ('p003', 'Echo DOt', 386.10, 'Novo Echo Dot 5ª geração | O Echo Dot com o melhor som já lançado | Cor Preta', 'https://m.media-amazon.com/images/I/71xoR4A6q-L._AC_SX522_.jpg');
 
 CREATE TABLE purchases (
@@ -75,4 +75,5 @@ INSERT INTO purchases_products VALUES
 ('b001', 'p002', 1),
 ('b002', 'p003', 3);
 
-SELECT purchases_products.product_id, purchases_products.purchase_id, users.name, products.name, purchases_products.quantity FROM purchases_products INNER JOIN purchases ON purchases_products.purchase_id = purchases.id INNER JOIN products ON purchases_products.product_id = products.id INNER JOIN users ON purchases.buyer = users.id;
+DROP TABLE purchases_products;
+SELECT * FROM purchases_products;

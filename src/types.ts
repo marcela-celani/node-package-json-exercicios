@@ -3,7 +3,7 @@ export type Tusers = {
     name: string,
     email?: string,
     password: string,
-    createdAt? : string | undefined
+    created_at? : string | undefined
 }
 
 export type Tproducts = {
