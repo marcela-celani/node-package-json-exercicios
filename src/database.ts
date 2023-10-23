@@ -1,0 +1,99 @@
+// import { Tproducts, Tusers } from "./types";
+
+// export const users: Tusers[] =
+// [
+//     {
+//         id: 'u001',
+//         name: 'Fulano',
+//         email: 'fulano@email.com',
+//         password: 'fulano123',
+//         created_at: new Date().toLocaleString(),
+//     },
+//     {
+//         id: 'u002',
+//         name: 'Beltrana',
+//         email: 'beltrana@email.com',
+//         password: 'beltrana00',
+//         created_at: new Date().toISOString(),
+//     }
+// ]
+
+// export const product: Tproducts[] = [
+//     {
+//         id: 'prod001',
+//         name: 'Mouse gamer',
+//         price: 250,
+//         description: 'Melhor mouse do mercado!',
+//         imageUrl: 'https://picsum.photos/seed/Mouse%20gamer/400',
+//     },
+//     {
+//         id: 'prod002',
+//         name: 'Monitor',
+//         price: 900,
+//         description: 'Monitor LED Full HD 24 polegadas',
+//         imageUrl: 'https://picsum.photos/seed/Monitor/400',
+//     }
+// ]
+
+// // funçao criar usuario
+// export const createUser = (id: string, name: string, email: string, password: string, created_at: string): string => {
+//     const newUser = {
+//         id,
+//         name,
+//         email,
+//         password,
+//         created_at,
+//     }
+    
+//     users.push(newUser)
+//     return('Usuario criado com sucesso')
+// }
+
+// // funçao criar produto
+// export const createProduct = (id: string, name: string, price: number, description: string, imageUrl: string): string => {
+//     const newProduct = {
+//         id,
+//         name,
+//         price,
+//         description,
+//         imageUrl,
+//     }
+
+//     product.push(newProduct)
+//     return('Produto criado com sucesso')
+// }
+
+// // função deletar usuario
+// export const deleteUser = (id: string): void => {
+    
+//     const indexToDelete = product.findIndex((item)=> item.id === id)
+    
+//     if(indexToDelete >=0){
+//         users.splice(indexToDelete,1)
+//     }
+// }
+
+// // função deletar produto
+// export const deleteProducts = (id: string): void => {
+    
+//     const indexToDelete = product.findIndex((item)=> item.id === id)
+    
+//     if(indexToDelete >=0){
+//         product.splice(indexToDelete,1)
+//     } 
+// }
+
+// // função editar produto
+// export const editProducts = (id:string, newName:string, newPrice:number, newDescription:string, newImageUrl:string): void => {
+
+//     const productToEdit = product.find((item)=> item.id === id)
+
+//     if(productToEdit){
+//         productToEdit.name = newName || productToEdit.name
+//         productToEdit.price = isNaN(newPrice) ? productToEdit.price : newPrice
+//         productToEdit.description = newDescription || productToEdit.description
+//         productToEdit.imageUrl = newImageUrl || productToEdit.imageUrl
+//     }
+// }
+
+
